@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numbers API Facts</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, grey, black);
+            color: orange;
+            text-align: center;
+            padding: 20px;
+        }
+        .fact {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: rgba(0, 0, 0, 0.6);
+            border-radius: 5px;
+            color: orange;
+        }
+    </style>
+</head>
+<body>
+    <h1>Numbers API Facts</h1>
+    <div id="favorite-number-fact" class="fact"></div>
+    <div id="multiple-numbers-facts" class="fact"></div>
+    <div id="favorite-number-facts" class="fact"></div>
+
+    <script>
+        const favoriteNumber = 78;
+
+       
+        function fetchFact(number) {
+            return fetch(`http://numbersapi.com/${number}?json`)
+                .then(response => response.json())
+                .then(data => data.text);
+        }
+
+        
+        fetchFact(favoriteNumber).then(fact => {
+            document.getElementById('favorite-number-fact').innerText = `Fact about ${favoriteNumber}: ${fact}`;
+        });
+
+        
+        const numbers = [47, 13, 42];
+        fetch(`http://numbersapi.com/${numbers.join(',')}?json`)
+            .then(response => response.json())
+            .then(data => {
+                const factsDiv = document.getElementById('multiple-numbers-facts');
+                factsDiv.innerHTML = 'Facts about multiple numbers:<br>';
+                for (const number in data) {
+                    factsDiv.innerHTML += `${number}: ${data[number]}<br>`;
+                }
+            });
+
+        
+        const uniqueFacts = new Set();
+        const factsDiv = document.getElementById('favorite-number-facts');
+        factsDiv.innerHTML = `4 Facts about ${favoriteNumber}:<br>`;
+
+        function fetchUniqueFacts(number, count) {
+            if (uniqueFacts.size < count) {
+                fetchFact(number).then(fact => {
+                    if (!uniqueFacts.has(fact)) {
+                        uniqueFacts.add(fact);
+                        factsDiv.innerHTML += `${fact}<br>`;
+                    }
+                    fetchUniqueFacts(number, count);
+                });
+            }
+        }
+
+        fetchUniqueFacts(favoriteNumber, 4);
+    </script>
+</body>
+</html>

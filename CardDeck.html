@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Draw Cards</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, blue, purple);
+            color: white;
+        }
+        #drawButton {
+            margin: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            background-color: white;
+            color: black;
+            border: none;
+            border-radius: 5px;
+        }
+        #cards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .card {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Draw Cards from a Deck</h1>
+    <button id="drawButton">Draw a Card</button>
+    <div id="cards"></div>
+
+    <script>
+        let deckId;
+
+       
+        fetch('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1')
+            .then(response => response.json())
+            .then(data => {
+                deckId = data.deck_id;
+            });
+
+        
+        document.getElementById('drawButton').addEventListener('click', () => {
+            fetch(`https://deckofcardsapi.com/api/deck/${deckId}/draw/?count=1`)
+                .then(response => response.json())
+                .then(data => {
+                    const card = data.cards[0];
+                    const cardImg = document.createElement('img');
+                    cardImg.src = card.image;
+                    cardImg.alt = `${card.value} of ${card.suit}`;
+                    cardImg.classList.add('card');
+                    document.getElementById('cards').appendChild(cardImg);
+
+                    
+                    if (data.remaining === 0) {
+                        document.getElementById('drawButton').disabled = true;
+                        document.getElementById('drawButton').textContent = "No more cards!";
+                    }
+                });
+        });
+    </script>
+</body>
+</html>
